@@ -1,0 +1,344 @@
+{
+  "quiz_metadata": {
+    "quiz_id": "Quiz1",
+    "date": "2026-02-20",
+    "topic": "OpenWrt IPv6 DHCPv6 Prefix Delegation and Android Address Retention Issue",
+    "description": "A complex networking problem involving DHCPv6 protocol issues and client-side address retention"
+  },
+  "scoring_criteria": {
+    "problem_recognition": {
+      "weight": 0.25,
+      "description": "Ability to identify both distinct problems: (1) IA_PD renewal issues causing 'No Binding' errors, (2) Android devices retaining old IPv6 addresses"
+    },
+    "technical_accuracy": {
+      "weight": 0.25,
+      "description": "Correct understanding of DHCPv6, IA_NA, IA_PD, SLAAC, RA, and related protocols"
+    },
+    "solution_quality": {
+      "weight": 0.20,
+      "description": "Practicality and effectiveness of proposed solutions"
+    },
+    "completeness": {
+      "weight": 0.15,
+      "description": "Coverage of multiple aspects and edge cases"
+    },
+    "no_hallucinations": {
+      "weight": 0.10,
+      "description": "Absence of fake options, incorrect facts, or non-existent features"
+    },
+    "documentation_usage": {
+      "weight": 0.05,
+      "description": "Proper use of provided odhcp6c.html documentation"
+    }
+  },
+  "ai_models": [
+    {
+      "name": "OpenAI ChatGPT 5.x-web",
+      "scores": {
+        "problem_recognition": 23,
+        "technical_accuracy": 25,
+        "solution_quality": 19,
+        "completeness": 14,
+        "no_hallucinations": 10,
+        "documentation_usage": 1
+      },
+      "weighted_score": 92.0,
+      "rank": 1,
+      "strengths": [
+        "Exceptional technical depth with perfect DHCPv6 protocol understanding",
+        "Clear separation of WAN-side vs LAN-side issues",
+        "Multiple well-explained solution approaches",
+        "Production-grade recommendations",
+        "Included diagnostic commands for troubleshooting"
+      ],
+      "weaknesses": [
+        "Did not explicitly reference provided documentation",
+        "Could have provided more complete script examples"
+      ],
+      "key_solutions_provided": [
+        "Restart LAN interface when PD changes",
+        "Restart odhcpd after PD refresh",
+        "Force RA lifetime shortening",
+        "Use hotplug script for automatic PD refresh"
+      ],
+      "hallucinations": [],
+      "assumptions_without_evidence": []
+    },
+    {
+      "name": "Kimi K2.5-Flash",
+      "scores": {
+        "problem_recognition": 22,
+        "technical_accuracy": 23,
+        "solution_quality": 18,
+        "completeness": 12,
+        "no_hallucinations": 9,
+        "documentation_usage": 0
+      },
+      "weighted_score": 84.0,
+      "rank": 2,
+      "strengths": [
+        "Very comprehensive with 6 different solution options",
+        "Good technical depth and research approach",
+        "Mentioned contacting ISP as long-term solution",
+        "Android-specific mitigation included"
+      ],
+      "weaknesses": [
+        "Could be more concise and focused",
+        "Some solutions are overly complex",
+        "Minor inaccuracies in technical details",
+        "Made unsupported claim about odhcp6c source code"
+      ],
+      "key_solutions_provided": [
+        "Use SIGUSR2 instead of SIGUSR1",
+        "Force address refresh on LAN",
+        "Shorten valid lifetimes",
+        "Dynamic prefix update script",
+        "odhcp6c hacks with forceprefix and norelease",
+        "Android-specific mitigations"
+      ],
+      "hallucinations": [
+        "Made unsupported claim about odhcp6c source code behavior"
+      ],
+      "assumptions_without_evidence": []
+    },
+    {
+      "name": "Claude Sonnet 4.6",
+      "scores": {
+        "problem_recognition": 21,
+        "technical_accuracy": 23,
+        "solution_quality": 18,
+        "completeness": 13,
+        "no_hallucinations": 7,
+        "documentation_usage": 0
+      },
+      "weighted_score": 82.0,
+      "rank": 3,
+      "strengths": [
+        "Clear problem analysis",
+        "Practical watchdog solution",
+        "Honest about limitations (especially Android)",
+        "Good explanation of why certain approaches don't work",
+        "ULA configuration suggested as good practice"
+      ],
+      "weaknesses": [
+        "Some undocumented options mentioned (ra_useleasetime)",
+        "Made assumptions about ISP behavior",
+        "Could reference provided documentation"
+      ],
+      "key_solutions_provided": [
+        "Trigger renew on actual failure with watchdog script",
+        "Use ULA as stable fallback",
+        "Shorten RA lifetime proactively",
+        "Force RA with old prefix zeroed out"
+      ],
+      "hallucinations": [
+        "Mentioned ra_useleasetime option (not in provided documentation)"
+      ],
+      "assumptions_without_evidence": [
+        "Assumptions about ISP behavior without evidence"
+      ]
+    },
+    {
+      "name": "Deepseek DS-3.x",
+      "scores": {
+        "problem_recognition": 21,
+        "technical_accuracy": 23,
+        "solution_quality": 17,
+        "completeness": 12,
+        "no_hallucinations": 7,
+        "documentation_usage": 0
+      },
+      "weighted_score": 80.0,
+      "rank": 4,
+      "strengths": [
+        "Clever technical approach (temporary old prefix address)",
+        "Well-structured solution",
+        "Good troubleshooting guide",
+        "Monitoring script is well-designed"
+      ],
+      "weaknesses": [
+        "Some undocumented options mentioned (ra_useleasetime)",
+        "Script complexity higher than necessary",
+        "5-second sleep might be too short",
+        "Did not use provided documentation"
+      ],
+      "key_solutions_provided": [
+        "Monitor WAN6 prefix every minute via ubus",
+        "Add temporary address from old prefix with zero lifetimes",
+        "Send SIGUSR1 to odhcpd to force RA",
+        "Optional RA lifetime tuning"
+      ],
+      "hallucinations": [
+        "Mentioned ra_useleasetime option (not in provided documentation)"
+      ],
+      "assumptions_without_evidence": [
+        "Assumptions about odhcpd behavior"
+      ]
+    },
+    {
+      "name": "ZAI GLM-5",
+      "scores": {
+        "problem_recognition": 18,
+        "technical_accuracy": 15,
+        "solution_quality": 15,
+        "completeness": 11,
+        "no_hallucinations": 9,
+        "documentation_usage": 0
+      },
+      "weighted_score": 68.0,
+      "rank": 5,
+      "strengths": [
+        "Practical watchdog script",
+        "DUID persistence concept (though assumption-based)",
+        "Working solution provided",
+        "Suggested ifup wan6 which is correct"
+      ],
+      "weaknesses": [
+        "Made assumptions without evidence",
+        "Less clear on second problem (Android)",
+        "Some technical inaccuracies about odhcp6c behavior",
+        "Incorrect about SIGUSR1 only doing 'Renew'"
+      ],
+      "key_solutions_provided": [
+        "Ensure DUID persistence",
+        "Watchdog script checking for 'No Binding' errors",
+        "Force odhcpd restart for RA update",
+        "Ping-based connectivity check"
+      ],
+      "hallucinations": [],
+      "assumptions_without_evidence": [
+        "Assumed router restarts before releasing (not stated in input)",
+        "Assumed DUID changes cause the issue"
+      ]
+    },
+    {
+      "name": "Google Gemini 3 Flash",
+      "scores": {
+        "problem_recognition": 15,
+        "technical_accuracy": 10,
+        "solution_quality": 15,
+        "completeness": 8,
+        "no_hallucinations": 7,
+        "documentation_usage": 0
+      },
+      "weighted_score": 55.0,
+      "rank": 6,
+      "strengths": [
+        "Good insight about using ifup wan6",
+        "Understood Android issue well",
+        "Watchdog script concept is good"
+      ],
+      "weaknesses": [
+        "Critical hallucination: ra_deprecate option does not exist",
+        "Poor documentation usage",
+        "Several technical inaccuracies",
+        "ra_management '1' interpretation incorrect"
+      ],
+      "key_solutions_provided": [
+        "Better watchdog script",
+        "Fix 'No Binding' issue with norelease and delegate options",
+        "Forcing Android to drop old IPs with ra_deprecate",
+        "Scripted prefix flush"
+      ],
+      "hallucinations": [
+        "ra_deprecate option (does not exist in odhcp6c)",
+        "ra_management '1' misinterpreted"
+      ],
+      "assumptions_without_evidence": []
+    },
+    {
+      "name": "Xiaomi FlashV2",
+      "scores": {
+        "problem_recognition": 10,
+        "technical_accuracy": 10,
+        "solution_quality": 15,
+        "completeness": 8,
+        "no_hallucinations": 7,
+        "documentation_usage": 0
+      },
+      "weighted_score": 50.0,
+      "rank": 7,
+      "strengths": [
+        "Some general IPv6 knowledge",
+        "Provided some working commands",
+        "Honest about debugging"
+      ],
+      "weaknesses": [
+        "Fundamental misunderstanding of the problem",
+        "Suggested disabling IA_PD (completely wrong - user needs usable GLA)",
+        "Wrong solutions for wrong problem",
+        "Did not address actual issues from input"
+      ],
+      "key_solutions_provided": [
+        "Configure OpenWrt to use only IA_NA (disable IA_PD)",
+        "Alternative approach with forceprefix and norelease",
+        "LAN side configuration suggestions",
+        "Script alternative to hourly restart"
+      ],
+      "hallucinations": [],
+      "assumptions_without_evidence": [
+        "Thought ISP gives /64 for both IA_NA and IA_PD (incorrect)",
+        "Assumed prefix delegation isn't needed"
+      ]
+    },
+    {
+      "name": "Mistral",
+      "scores": {
+        "problem_recognition": 2,
+        "technical_accuracy": 2,
+        "solution_quality": 2,
+        "completeness": 2,
+        "no_hallucinations": 7,
+        "documentation_usage": 0
+      },
+      "weighted_score": 15.0,
+      "rank": 8,
+      "strengths": [],
+      "weaknesses": [
+        "Did not identify any problems",
+        "Asked for more information instead of analyzing",
+        "No technical analysis provided",
+        "No solutions provided",
+        "Complete failure to address the question"
+      ],
+      "key_solutions_provided": [],
+      "hallucinations": [],
+      "assumptions_without_evidence": []
+    }
+  ],
+  "summary_statistics": {
+    "total_models": 8,
+    "average_score": 65.75,
+    "highest_score": 92.0,
+    "lowest_score": 15.0,
+    "median_score": 66.5,
+    "standard_deviation": 26.3,
+    "models_perfect_hallucination_score": 4,
+    "models_with_hallucinations": 4
+  },
+  "category_averages": {
+    "problem_recognition": 16.5,
+    "technical_accuracy": 16.4,
+    "solution_quality": 13.9,
+    "completeness": 10.0,
+    "no_hallucinations": 8.3,
+    "documentation_usage": 0.125
+  },
+  "key_findings": [
+    "OpenAI ChatGPT 5.x-web significantly outperformed other models with 92/100",
+    "Most models did not reference the provided odhcp6c.html documentation",
+    "Many models made assumptions not supported by the input",
+    "Several models mentioned non-existent options (hallucinations)",
+    "Few models explicitly structured two separate fix routines as requested",
+    "Technical accuracy was the most challenging category for most models",
+    "Documentation usage was nearly universal failure (0-1/5 across all models)"
+  ],
+  "recommendations_for_future_evaluations": [
+    "Documentation usage should be weighted more heavily",
+    "Models should avoid making assumptions not supported by input",
+    "Structure should be encouraged for identifying multiple problems separately",
+    "Verification against official documentation should be required",
+    "Non-existent options should be heavily penalized",
+    "Models should be trained to explicitly check provided documentation"
+  ]
+}

@@ -1,0 +1,9 @@
+Rank,Model Name,Total Score,Problem Recognition,Technical Accuracy,Solution Quality,Completeness,No Hallucinations,Documentation Usage
+1,OpenAI ChatGPT 5.x-web,92.0,23,25,19,14,10,1
+2,Kimi K2.5-Flash,84.0,22,23,18,12,9,0
+3,Claude Sonnet 4.6,82.0,21,23,18,13,7,0
+4,Deepseek DS-3.x,80.0,21,23,17,12,7,0
+5,ZAI GLM-5,68.0,18,15,15,11,9,0
+6,Google Gemini 3 Flash,55.0,15,10,15,8,7,0
+7,Xiaomi FlashV2,50.0,10,10,15,8,7,0
+8,Mistral,15.0,2,2,2,2,7,0
