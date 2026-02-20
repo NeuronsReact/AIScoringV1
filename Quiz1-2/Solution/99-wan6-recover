@@ -1,0 +1,35 @@
+#!/bin/sh
+# Event-driven recovery for WAN6 PD failures
+
+if [ "$INTERFACE" != "wan6" ]; then
+    logger -t wan6-recover "Interface $INTERFACE not wan6, exiting"
+    exit 0
+fi
+[ "$ACTION" = "ifupdate" ] || [ "$ACTION" = "ifup" ] || { logger -t wan6-recover "Action $ACTION not ifupdate or ifup, exiting"; exit 0; }
+
+# Wait for interface to stabilize
+sleep 5
+
+# 
+PREFIX_COUNT=$(ubus call network.interface.wan6 status | grep -c '"ipv6-address"' 2>/dev/null || echo "0")
+
+if [ "$PREFIX_COUNT" -eq 0 ]; then
+    logger -t wan6-recover "No ipv6-address detected, exiting"
+    exit 0
+    #ifdown wan6
+    #sleep 3
+    #ifup wan6
+elif [ "$PREFIX_COUNT" -gt 1 ]; then
+    logger -t wan6-recover "Multiple ipv6-address detected ($PREFIX_COUNT), cleaning up"
+    # Trigger renew
+    # killall -SIGUSR1 odhcp6c 2>/dev/null
+    sleep 3
+    # If still stale after 3 seconds, full restart
+    PREFIX_COUNT_AFTER=$(ubus call network.interface.wan6 status | grep -c '"ipv6-address"' 2>/dev/null || echo "0")
+    if [ "$PREFIX_COUNT_AFTER" -gt 1 ]; then
+        logger -t wan6-recover "Multiple ipv6-address still detected after 3 seconds ($PREFIX_COUNT_AFTER), restarting wan6"
+        #ifdown wan6
+        sleep 3
+        #ifup wan6
+    fi
+fi

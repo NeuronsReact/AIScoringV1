@@ -1,0 +1,2 @@
+The AI answers might have errors, so you may not trust them, while you should not simplely ignore them.
+For example, the triggers of hot-plug scripts used in those answer are varied, but we don't know if all of they would work in the production environment. A better routine is that we use all those triggers, but make the scripts do nothing except printing logs when triggered, to verify the trigger.
