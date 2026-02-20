@@ -1,0 +1,93 @@
+# Connect via SSH, then paste this entire block:
+
+```
+cat > /etc/hotplug.d/iface/99-wan6-recover << 'EOF'
+#!/bin/sh
+# Event-driven recovery for WAN6 PD failures
+
+if [ "$INTERFACE" != "wan6" ]; then
+    logger -t wan6-recover "Interface $INTERFACE not wan6, exiting"
+    exit 0
+fi
+[ "$ACTION" = "ifupdate" ] || [ "$ACTION" = "ifup" ] || { logger -t wan6-recover "Action $ACTION not ifupdate or ifup, exiting"; exit 0; }
+
+# Flag to check if this ifup was triggered by our own recovery
+SKIP_FLAG="/tmp/wan6-recover-skip"
+if [ -f "$SKIP_FLAG" ]; then
+    logger -t wan6-recover "Skipping recovery check (self-triggered ifup)"
+    rm -f "$SKIP_FLAG"
+    exit 0
+fi
+
+# Lock file to prevent infinite loops when ifup triggers another hotplug event
+LOCK_FILE="/var/lock/wan6-recover.lock"
+LOCK_TIMEOUT_MINUTES=5  # 5 minutes timeout for stale locks
+
+# Check if another instance is running or has a stale lock
+if [ -f "$LOCK_FILE" ]; then
+    # Check if lock is older than timeout (OpenWrt find uses -mmin)
+    if [ -n "$(find "$LOCK_FILE" -mmin +$LOCK_TIMEOUT_MINUTES 2>/dev/null)" ]; then
+        logger -t wan6-recover "Removing stale lock file"
+        rm -f "$LOCK_FILE"
+    else
+        logger -t wan6-recover "Another instance is already running, exiting"
+        exit 0
+    fi
+fi
+
+# Create lock file
+touch "$LOCK_FILE"
+
+# Ensure lock file is removed on exit
+trap "rm -f '$LOCK_FILE'" EXIT TERM INT
+
+# Wait for interface to stabilize
+sleep 5
+
+# Get current status
+WAN6_STATUS=$(ubus call network.interface.wan6 status)
+
+# Extract masks specifically from the ipv6-address array using bracket notation
+# In normal status, this should only return 128 (IA_NA)
+# In abnormal status, this will return 128 AND 64 (the PD incorrectly assigned as an address)
+IPV6_MASKS=$(echo "$WAN6_STATUS" | jsonfilter -e '@["ipv6-address"][*].mask' 2>/dev/null)
+
+# Check if 64 is present in the ipv6-address masks
+if echo "$IPV6_MASKS" | grep -q '64'; then
+    logger -t wan6-recover "Abnormal status detected: /64 mask found in ipv6-address array. Initiating recovery."
+
+    # Attempt 1: Signal odhcp6c to renew
+    logger -t wan6-recover "Sending SIGUSR1 to odhcp6c..."
+    killall -SIGUSR1 odhcp6c 2>/dev/null
+
+    # Wait for renewal to process
+    sleep 5
+
+    # Re-check status
+    WAN6_STATUS=$(ubus call network.interface.wan6 status)
+    IPV6_MASKS=$(echo "$WAN6_STATUS" | jsonfilter -e '@["ipv6-address"][*].mask' 2>/dev/null)
+
+    if echo "$IPV6_MASKS" | grep -q '64'; then
+        logger -t wan6-recover "Abnormal status persists. Restarting wan6 interface..."
+        # Remove lock before ifup to prevent blocking the next execution
+        rm -f "$LOCK_FILE"
+        ifdown wan6
+        sleep 3
+        # Set a flag to skip the next immediate execution
+        touch /tmp/wan6-recover-skip
+        ifup wan6
+    else
+        logger -t wan6-recover "Recovery successful via SIGUSR1."
+    fi
+else
+    logger -t wan6-recover "Normal status: No /64 mask in ipv6-address array."
+fi
+EOF
+```
+
+# Make it executable
+`chmod +x /etc/hotplug.d/iface/99-wan6-recover`
+
+# How to run `/etc/hotplug.d/iface/99-wan6-recover` manually through ssh in Openwrt.
+Recommand way: `INTERFACE=wan6 ACTION=ifup /etc/hotplug.d/iface/99-wan6-recover`
+Official way: `ACTION=ifup INTERFACE=wan6 hotplug-call iface`
