@@ -74,6 +74,8 @@ if echo "$IPV6_MASKS" | grep -q '64'; then
         ifup wan6
     else
         logger -t wan6-recover "Recovery successful via SIGUSR1."
+        # restart odhcpd to ensure clean state when needed
+        #/etc/init.d/odhcpd restart
     fi
 else
     logger -t wan6-recover "Normal status: No /64 mask in ipv6-address array."
