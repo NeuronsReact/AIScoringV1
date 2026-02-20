@@ -1,0 +1,42 @@
+==== Protocol "dhcpv6" ====
+These are available options in uci configuration of client ipv6 interface (using the "dhcpv6" protocol).
+
+^ Name ^ Type ^ Required ^ Default ^ Description ^
+| ''reqaddress'' | [try,force,none] | no | try | Behaviour for requesting addresses |
+| ''reqprefix'' | [auto, no, 0-64, <prefix/length>] | no | auto | Specifies the behavior for requesting IPv6 prefixes. Numbers denote hinted prefix length (e.g., 0-64). If set to no, only a single IPv6 address is requested for the AP itself, without a subnet for routing. Alternatively, a specific IPv6 prefix and length can be specified in the <prefix/length> format (e.g., 2001:db8::/56), which allows requesting a specific IPv6 prefix when dynamically issued by the upstream. |
+| ''clientid'' | hexstring | no | //DUID-LL (type 3)// | Override client identifier in DHCP requests (Option 1). The odhcp6c default is ''00030001'' concatenated with the ''device'' MAC address - see [[https://datatracker.ietf.org/doc/html/rfc8415#section-11.4|RFC 8415]] |
+| ''ip6ifaceid'' | ipv6 addr | no | //link-local identifier// | Override the interface identifier for adresses received via RA (Router Advertisement) |
+| ''dns'' | list of ip addresses | no | //(none)// | Supplement DHCP-assigned DNS server(s), or use only these if peerdns is 0 |
+| ''peerdns'' | boolean | no | ''1'' | Use DHCP-provided DNS server(s) |
+| ''keep_ra_dnslifetime'' | boolean | no | ''0'' | Ignore default lifetime for RDNSS records [[https://github.com/openwrt/odhcp6c/commit/d420f49396c627ce1072b83170889baf0720bc8b|More info]] |
+| ''defaultroute'' | boolean | no | ''1'' | Whether to create an IPv6 default route via the received gateway |
+| ''reqopts'' | list of numbers | no | //(none)// | Specifies a list of additional DHCP options to request |
+| ''defaultreqopts'' | boolean | no | ''1'' | If set to ''0'', do not request any options except those specified in ''reqopts'' |
+| ''sendopts'' | string | no | //(none)// | Space-separated list of additional DHCP options to send to the server. Syntax: ''option:value'' where ''option'' is either an integer code or a symbolic name such as ''hostname''. |
+| ''noslaaconly'' | boolean | no | ''0'' | Don't allow configuration via SLAAC (RAs) only (implied by reqprefix != no) |
+| ''forceprefix'' | boolean | no | ''0'' | Require presence of IPv6 Prefix in received DHCP message |
+| ''norelease'' | boolean | no | ''0'' | Don't send a RELEASE when the interface is brought down |
+| ''ip6prefix'' | ipv6 prefix | no | //(none)// | Use an (additional) user-provided IPv6 prefix for distribution to clients |
+| ''extendprefix'' | boolean | no | ''0'' | On a 3GPP Mobile WAN link, accept a /64 prefix via SLAAC and extend it on one downstream interface - see [[https://datatracker.ietf.org/doc/html/rfc7278|RFC 7278]] |
+| ''iface_dslite'' | logical interface | no | //(none)// | Logical interface template for auto-configuration of DS-Lite (0 means disable DS-Lite autoconfiguration; every other value will autoconfigure DS-Lite when the AFTR-Name option is received) |
+| ''zone_dslite'' | string | no | //(none)// | Firewall zone of the logical DS-Lite interface |
+| ''iface_map'' | string | no | //(none)// | Logical interface template for auto-configuration of either map-e/map-t/lw6o4 autoconfiguration (0 means disable map-e/map-t/lw406 autoconfiguration; every other value will autoconfigure map-e/map-t/lw4o6 when the corresponding Softwire46 options are received) |
+| ''zone_map'' | string | no | //(none)// | Firewall zone of the logical map-e/map-t/lw6o4 interface |
+| ''iface_464xlat'' | string | no | //(none)// | Logical interface template for the 464xlat interface (0 means disable 464xlat autoconfiguration; every other value will try to autoconfigure 464xlat) |
+| ''zone_464xlat'' | string | no | //(none)// | Firewall zone of the logical 464xlat interface |
+| ''zone'' | string | no | //(none)// | Firewall zone to which the interface will be added |
+| ''sourcefilter'' | boolean | no | ''1'' | Whether to enable source based IPv6 routing |
+| ''vendorclass'' | string | no | //(none)// | Vendor class to be included in the DHCP messages (Option 16)|
+| ''userclass'' | string | no | //(none)// | User class to be be included in the DHCP messages (Option 15)|
+| ''delegate'' | boolean | no | ''1'' | Whether to enable prefix delegation in case of DS-Lite/map/464xlat |
+| ''soltimeout'' | integer | no | ''120'' | The maximum solicit timeout |
+| ''fakeroute'' | boolean | no | ''1'' | Fake default route when no route info via RA is received |
+| ''ra_holdoff'' | integer | no | ''3'' | Minimum time in seconds between accepting RA updates |
+| ''noclientfqdn'' | boolean | no | ''0'' | Don't send Client FQDN option (Option 39). The unset default uses the system hostname e.g. ''OpenWrt'' |
+| ''noacceptreconfig'' | boolean | no | ''0'' | Don't send Accept Reconfigure option [[https://github.com/openwrt/odhcp6c/commit/dc30922e418be6271ad177f3f9d4ecf0c1eb3f01|More info]] |
+| ''noserverunicast'' | boolean | no | ''0'' | Ignore Server Unicast option [[https://github.com/openwrt/odhcp6c/commit/67ae6a71b5762292e114b281d0e329cc24209ae6|More info]] |
+| ''skpriority'' | integer | no | ''0'' | Set packet kernel priority [[https://github.com/openwrt/odhcp6c/commit/bcd283632ac13391aac3ebdd074d1fd832d76fa3|More info]] |
+| ''verbose'' | boolean | no | ''0'' | Increase logging verbosity |
+| ''dynamic'' | boolean | no | ''1'' | Setup 4in6 dynamic protocols map, dslite or 464xlat [[https://github.com/openwrt/openwrt/commit/32c46b569fa350be9edb2b0bf2c37c4525a34190| More info ]]|
+
+**Note:** To automatically configure ds-lite from dhcpv6, you need to create an interface with ''option auto 0'' and put its name as the 'iface_dslite' parameter. In addition, you also need to add its name to a suitable firewall zone in /etc/config/firewall.
